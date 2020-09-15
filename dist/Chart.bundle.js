@@ -12165,7 +12165,7 @@ var Scale = core_element.extend({
 			return alignPixel(chart, pixel, axisWidth);
 		};
 		var borderValue, i, tick, lineValue, alignedLineValue;
-		var tx1, ty1, tx2, ty2, x1, y1, x2, y2, lineWidth, lineColor, borderDash, borderDashOffset;
+		var tx1, ty1, tx2, ty2, x1, y1, x2, y2, lineWidth, lineColor, borderDash, borderDashOffset, isLast;
 
 		if (position === 'top') {
 			borderValue = alignBorderValue(me.bottom);
@@ -12194,6 +12194,7 @@ var Scale = core_element.extend({
 		}
 
 		for (i = 0; i < ticksLength; ++i) {
+			isLast = (i+1 === ticksLength);
 			tick = ticks[i] || {};
 
 			// autoskipper skipped this tick (#4635)
@@ -12207,6 +12208,13 @@ var Scale = core_element.extend({
 				lineColor = gridLines.zeroLineColor;
 				borderDash = gridLines.zeroLineBorderDash || [];
 				borderDashOffset = gridLines.zeroLineBorderDashOffset || 0.0;
+			} else if( isLast && gridLines.lastLine ){ 
+				//Draw the last index specially
+				lineWidth = gridLines.lastLine.lineWidth ? gridLines.lastLine.lineWidth : valueAtIndexOrDefault(gridLines.lineWidth, i, 1);
+				lineColor = gridLines.lastLine.color ? gridLines.lastLine.color : valueAtIndexOrDefault(gridLines.color, i, 1);
+				borderDash = gridLines.lastLine.borderDash ? gridLines.lastLine.borderDash : gridLines.borderDash || [];
+				borderDashOffset = gridLines.lastLine.borderDashOffset ? gridLines.lastLine.borderDashOffset : gridLines.borderDashOffset || [];
+				if( gridLines.lastLine.display !== undefined && !gridLines.lastLine.display ){ lineColor = 'transparent'; }
 			} else {
 				lineWidth = valueAtIndexOrDefault(gridLines.lineWidth, i, 1);
 				lineColor = valueAtIndexOrDefault(gridLines.color, i, 'rgba(0,0,0,0.1)');
