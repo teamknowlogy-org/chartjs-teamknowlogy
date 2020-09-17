@@ -4325,6 +4325,31 @@ var element_arc = core_element.extend({
 		if (vm.borderWidth) {
 			drawBorder(ctx, vm, arc);
 		}
+		//drawing custom outstick
+		if(vm.outStick && vm.outStick.length){
+			if((vm.outStick.minVal && vm.value) ? (vm.value >= vm.outStick.minVal) : true ){
+				var angle = (arc.startAngle + arc.endAngle) / 2;
+				var vx = Math.cos(angle);
+				var vy = Math.sin(angle);
+				var r0 = arc.outerRadius-1;
+				var r1 = arc.outerRadius+vm.outStick.length;
+				var x0 = arc.x + vx * r0;
+				var y0 = arc.y + vy * r0;
+				var x1 = arc.x + vx * r1;
+				var y1 = arc.y + vy * r1;
+			
+				ctx.save();
+				ctx.strokeStyle = vm.backgroundColor;
+				ctx.lineCap =  vm.outStick.capStyle? vm.outStick.capStyle: 'round';
+				ctx.beginPath();
+				ctx.moveTo(x0, y0);
+				ctx.lineTo(x1, y1);
+				ctx.lineWidth = vm.outStick.width ? vm.outStick.width : 1;
+				ctx.stroke();
+				ctx.closePath();
+				ctx.restore();
+			}
+		}
 
 		ctx.restore();
 	}
@@ -5575,7 +5600,10 @@ var controller_doughnut = core_datasetController.extend({
 				circumference: circumference,
 				outerRadius: outerRadius,
 				innerRadius: innerRadius,
-				label: helpers$1.valueAtIndexOrDefault(dataset.label, index, chart.data.labels[index])
+				label: helpers$1.valueAtIndexOrDefault(dataset.label, index, chart.data.labels[index]),
+				//adding extra properties to the model requiered for the stick rendering
+				outStick: opts.outStick,
+				value: dataset.data[index],
 			}
 		});
 

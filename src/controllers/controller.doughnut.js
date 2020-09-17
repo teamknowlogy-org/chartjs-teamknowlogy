@@ -246,7 +246,10 @@ module.exports = DatasetController.extend({
 				circumference: circumference,
 				outerRadius: outerRadius,
 				innerRadius: innerRadius,
-				label: helpers.valueAtIndexOrDefault(dataset.label, index, chart.data.labels[index])
+				label: helpers.valueAtIndexOrDefault(dataset.label, index, chart.data.labels[index]),
+				//adding extra properties to the model requiered for the stick rendering
+				outStick: opts.outStick,
+				value: dataset.data[index],
 			}
 		});
 
