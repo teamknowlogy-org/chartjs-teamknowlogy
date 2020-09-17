@@ -37,6 +37,39 @@ const options : ChartOptions = {
         ],
 ```
 
+<h3>lastLine</h3>
+<p>for the curves chart, an option to specify the style of the very last grid line of an axis has been added</p>
+
+```javascript
+	scales : {
+        yAxes : [
+          {
+            gridLines: {
+              lastLine:{
+                display:true,
+                color:'#2a2a2a',
+                borderDash: [0],
+              }
+            }
+          },
+        ],
+      }
+```
+
+<h3>outStick</h3>
+<p>the option to display an stick out of the center of each dataelement for the doughnut chart has been added</p>
+
+```javascript
+const options : ChartOptions = {
+      outStick: { 
+        width:3, 
+        length:5, 
+        minVal:5, //minimal value requiered for the stick to be drawn
+        capStyle:'round' //"butt" || "round" || "square";
+        },
+      }
+```
+
 <p>original readme below.</p>
 
 
