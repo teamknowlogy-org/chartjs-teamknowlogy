@@ -12441,32 +12441,36 @@ var Scale = core_element.extend({
 	_drawLabels: function() {
 		var me = this;
 		var optionTicks = me.options.ticks;
-		
+
+		var activeElement = null;
 		if (!optionTicks.display) {
 			return;
 		}
-		//declare some vars to use when drawing ticks color
+		
 		var onhover = false;
 		var aux_x = 0;
-		var aux_y = [];
 		var chart = me.chart;
-
-		//checking if there are hovered elements
-		if(chart.active && chart.active.length)
-		for(let a of me.chart.active){ // when there are hovered elements get the position info
-			onhover = true;
-			aux_x = a._model.x;
-			aux_y.push(a._model.y);
-		}
-
 		var ctx = me.ctx;
 		var items = me._labelItems || (me._labelItems = me._computeLabelItems());
 		var i, j, ilen, jlen, item, tickFont, label, y, next_y;
 
+		//checking if there are hovered elements
+		if(chart.active && chart.active.length)
+		for(let a of chart.active){ 
+			// when there are hovered elements get the position info
+			onhover = true;
+			aux_x = a._model.x;
+			if(a._datasetIndex === optionTicks.datasetIndexHover){
+				//saving active element for this tickset
+				activeElement = a;
+				//calculating tick to be hightlighted based on distance
+				activeElement.hoverTick = me._calculateDistancesFromElement(items,activeElement);
+			}
+		}
+	
 		for (i = 0, ilen = items.length; i < ilen; ++i) {
 			item = items[i];
 			tickFont = item.font;
-			
 			next_y = null;
 			if(items[i-1]){
 				next_y = items[i-1].y;
@@ -12485,14 +12489,11 @@ var Scale = core_element.extend({
 			if(optionTicks.hoverColor && onhover){
 				if(item.isHorizontal){
 					if( item.x === aux_x ){  ctx.fillStyle=optionTicks.hoverColor; }
-				}else{
-					for( let actual_y of aux_y){
-						if(
-							(actual_y<=item.y)
-							&& (next_y? !(actual_y <= next_y) : true)
-						){ ctx.fillStyle=optionTicks.hoverColor;}
-					}
 				}
+			}
+			//overriding fillstyle with dataset background color
+			if(activeElement && activeElement.hoverTick && activeElement.hoverTick === item ){
+				ctx.fillStyle=activeElement._model.backgroundColor;
 			}
 
 			label = item.label;
@@ -12508,6 +12509,29 @@ var Scale = core_element.extend({
 			}
 			ctx.restore();
 		}
+	},
+
+	/**
+	 * @private
+	 */
+	_calculateDistancesFromElement(items,element){
+		 var smallesDistItem = null;
+		 for(let i of items){
+			 i.distance = this._calculateDistanceTwoPoints(element._model.x, element._model.y,i.x,i.y);
+			 if(!smallesDistItem || i.distance < smallesDistItem.distance){
+				 smallesDistItem = i;
+			 }
+		 }
+		 return smallesDistItem;
+	},
+
+	/**
+	 * @private
+	 */
+	_calculateDistanceTwoPoints(x1,y1,x2,y2){
+		var a = x1 - x2;
+        var b = y1 - y2;
+        return Math.sqrt( a*a + b*b );
 	},
 
 	/**
