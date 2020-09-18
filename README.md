@@ -21,7 +21,7 @@ const datasets:ChartDataSets[] = [
 ```
 
 <h3>hoverColor</h3>
-<p>for the ticks options on the scales there is the hoverColor option wich will replace the color of the ticks for the specified hex color when there is an active hovered element</p>
+<p>for the ticks on xAxes options on the scales there is the hoverColor option wich will replace the color of the ticks for the specified hex color when there is an active hovered element, not available on yAxis, use datasetIndexHover instead</p>
 
 ```javascript
 const options : ChartOptions = {
@@ -36,6 +36,25 @@ const options : ChartOptions = {
           },
         ],
 ```
+
+<h3>datasetIndexHover</h3>
+<p>for the ticks on yAxes options on the scales there is the datasetIndexHover option wich will replace the color of the ticks for the backgroundcolor of the specified dataset when there is an active hovered element based on distance (the closest one will be highlighted), not available on xAxis, use hoverColor instead</p>
+
+```javascript
+const options : ChartOptions = {
+	scales : {
+        yAxes : [
+          {
+            ticks : {
+              fontColor : '#EBEBEBa1',
+              //setting color when hovering on a point in range
+              datasetIndexHover: 1,
+            },
+          },
+        ],
+```
+
+
 
 <h3>lastLine</h3>
 <p>for the curves chart, an option to specify the style of the very last grid line of an axis has been added</p>
