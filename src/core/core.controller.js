@@ -248,11 +248,26 @@ helpers.extend(Chart.prototype, /** @lends Chart */ {
 		}
 
 		me.initToolTip();
+		me.initializeIconTicks();
 
 		// After init plugin notification
 		plugins.notify(me, 'afterInit');
 
 		return me;
+	},
+
+	/** 
+	 * This function preloads icons to draw o ticklabel
+	*/
+	initializeIconTicks: function(){
+		var me = this;
+		if(me.config && me.config.data && me.config.data.labelIcons){
+			me.labelIcons = me.config.data.labelIcons.icons.map( v=>{
+				var aux_img = new Image();
+				aux_img.src = v;
+				return aux_img;
+			});
+		}
 	},
 
 	clear: function() {
