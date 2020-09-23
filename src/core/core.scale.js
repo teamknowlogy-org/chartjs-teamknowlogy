@@ -1307,6 +1307,7 @@ var Scale = Element.extend({
 	_drawLabels: function() {
 		var me = this;
 		var optionTicks = me.options.ticks;
+		var labelIcons = me.chart.config.data.labelIcons;
 
 		var activeElement = null;
 		if (!optionTicks.display) {
@@ -1314,6 +1315,7 @@ var Scale = Element.extend({
 		}
 		
 		var onhover = false;
+		var hover_index = null;
 		var aux_x = 0;
 		var chart = me.chart;
 		var ctx = me.ctx;
@@ -1325,6 +1327,7 @@ var Scale = Element.extend({
 		for(let a of chart.active){ 
 			// when there are hovered elements get the position info
 			onhover = true;
+			hover_index = a._index;
 			aux_x = a._model.x;
 			if(a._datasetIndex === optionTicks.datasetIndexHover){
 				//saving active element for this tickset
@@ -1342,36 +1345,50 @@ var Scale = Element.extend({
 				next_y = items[i-1].y;
 			}
 
-			// Make sure we draw text in the correct color and font
+			
 			ctx.save();
-			ctx.translate(item.x, item.y);
-			ctx.rotate(item.rotation);
-			ctx.font = tickFont.string;
-			ctx.fillStyle = tickFont.color;
-			ctx.textBaseline = 'middle';
-			ctx.textAlign = item.textAlign;
-
-			//set on hover style to tick fill that are on the x or y range depending on orientation
-			if(optionTicks.hoverColor && onhover){
-				if(item.isHorizontal){
-					if( item.x === aux_x ){  ctx.fillStyle=optionTicks.hoverColor; }
+			if(labelIcons && (item.position.localeCompare(labelIcons.position) === 0)){
+				ctx.drawImage(me.chart.labelIcons[i],item.x-15,item.y-10,30,30);
+				// black and white icons when not hover or not always_active
+				if( (!onhover && i !== labelIcons.always_active) || (onhover && i !== hover_index)){
+					var imgData = ctx.getImageData(item.x-12, item.y-7, 23, 25);
+					for (var ix = 0; ix < imgData.data.length; ix += 4) {
+						var med = (imgData.data[ix] + imgData.data[ix + 1] + imgData.data[ix + 2]) / 3;
+						imgData.data[ix] = imgData.data[ix + 1] = imgData.data[ix + 2] = med;
+					}
+				ctx.putImageData(imgData, item.x-12,  item.y-7);
 				}
-			}
-			//overriding fillstyle with dataset background color
-			if(activeElement && activeElement.hoverTick && activeElement.hoverTick === item ){
-				ctx.fillStyle=activeElement._model.backgroundColor;
-			}
+			}else{
+				// Make sure we draw text in the correct color and font
+				ctx.translate(item.x, item.y);
+				ctx.rotate(item.rotation);
+				ctx.font = tickFont.string;
+				ctx.fillStyle = tickFont.color;
+				ctx.textBaseline = 'middle';
+				ctx.textAlign = item.textAlign;
 
-			label = item.label;
-			y = item.textOffset;
-			if (isArray(label)) {
-				for (j = 0, jlen = label.length; j < jlen; ++j) {
-					// We just make sure the multiline element is a string here..
-					ctx.fillText('' + label[j], 0, y);
-					y += tickFont.lineHeight;
+				//set on hover style to tick fill that are on the x or y range depending on orientation
+				if(optionTicks.hoverColor && onhover){
+					if(item.isHorizontal){
+						if( item.x === aux_x ){  ctx.fillStyle=optionTicks.hoverColor; }
+					}
 				}
-			} else {
-				ctx.fillText(label, 0, y);
+				//overriding fillstyle with dataset background color
+				if(activeElement && activeElement.hoverTick && activeElement.hoverTick === item ){
+					ctx.fillStyle=activeElement._model.backgroundColor;
+				}
+
+				label = item.label;
+				y = item.textOffset;
+				if (isArray(label)) {
+					for (j = 0, jlen = label.length; j < jlen; ++j) {
+						// We just make sure the multiline element is a string here..
+						ctx.fillText('' + label[j], 0, y);
+						y += tickFont.lineHeight;
+					}
+				} else {
+					ctx.fillText(label, 0, y);
+				}
 			}
 			ctx.restore();
 		}
