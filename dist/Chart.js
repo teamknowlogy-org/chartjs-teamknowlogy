@@ -9443,6 +9443,7 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 		if(me.config && me.config.data && me.config.data.labelIcons){
 			me.labelIcons = me.config.data.labelIcons.icons.map( v=>{
 				var aux_img = new Image();
+				aux_img.onload = function () { me.update(); };
 				aux_img.src = v;
 				return aux_img;
 			});
