@@ -1348,7 +1348,7 @@ var Scale = Element.extend({
 			
 			ctx.save();
 			if(labelIcons && (item.position.localeCompare(labelIcons.position) === 0)){
-				ctx.drawImage(me.chart.labelIcons[i],item.x-15,item.y-10,30,30);
+				ctx.drawImage(me.chart.labelIcons[i],item.x-15,item.y-8.5,30,30);
 				// black and white icons when not hover or not always_active
 				if( (!onhover && i !== labelIcons.always_active) || (onhover && i !== hover_index)){
 					var imgData = ctx.getImageData(item.x-12, item.y-7, 23, 25);
