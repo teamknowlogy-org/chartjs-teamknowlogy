@@ -1348,15 +1348,13 @@ var Scale = Element.extend({
 			
 			ctx.save();
 			if(labelIcons && (item.position.localeCompare(labelIcons.position) === 0)){
-				ctx.drawImage(me.chart.labelIcons[i],item.x-15,item.y-8.5,30,30);
-				// black and white icons when not hover or not always_active
-				if( (!onhover && i !== labelIcons.always_active) || (onhover && i !== hover_index)){
-					var imgData = ctx.getImageData(item.x-12, item.y-7, 23, 25);
-					for (var ix = 0; ix < imgData.data.length; ix += 4) {
-						var med = (imgData.data[ix] + imgData.data[ix + 1] + imgData.data[ix + 2]) / 3;
-						imgData.data[ix] = imgData.data[ix + 1] = imgData.data[ix + 2] = med;
+				if(me.chart.labelIcons[i]){
+						// black and white icons when not hover or not always_active
+					if( (!onhover && i !== labelIcons.always_active) || (onhover && i !== hover_index)){
+						ctx.drawImage(me.chart.labelIcons[i].inactive,item.x-15,item.y-8.5,30,30);
+					}else{
+						ctx.drawImage(me.chart.labelIcons[i].active,item.x-15,item.y-8.5,30,30);
 					}
-				ctx.putImageData(imgData, item.x-12,  item.y-7);
 				}
 			}else{
 				// Make sure we draw text in the correct color and font
