@@ -69,6 +69,12 @@ module.exports = Element.extend({
 
 	draw: function(chartArea) {
 		var vm = this._view;
+		if(this.largest){
+			vm.backgroundColor = this._model.backgroundColor;
+			vm.borderColor = this._model.borderColor;
+			vm.borderWidth = this._model.borderWidth;
+			vm.extraBorder = this._model.extraBorder;
+		}
 		var ctx = this._chart.ctx;
 		var pointStyle = vm.pointStyle;
 		var rotation = vm.rotation;
@@ -77,7 +83,7 @@ module.exports = Element.extend({
 		var y = vm.y;
 		var globalDefaults = defaults.global;
 		var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
-
+		
 		if (vm.skip) {
 			return;
 		}

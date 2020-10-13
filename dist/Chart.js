@@ -4526,6 +4526,12 @@ var element_point = core_element.extend({
 
 	draw: function(chartArea) {
 		var vm = this._view;
+		if(this.largest){
+			vm.backgroundColor = this._model.backgroundColor;
+			vm.borderColor = this._model.borderColor;
+			vm.borderWidth = this._model.borderWidth;
+			vm.extraBorder = this._model.extraBorder;
+		}
 		var ctx = this._chart.ctx;
 		var pointStyle = vm.pointStyle;
 		var rotation = vm.rotation;
@@ -4534,7 +4540,7 @@ var element_point = core_element.extend({
 		var y = vm.y;
 		var globalDefaults = core_defaults.global;
 		var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
-
+		
 		if (vm.skip) {
 			return;
 		}
@@ -5891,6 +5897,7 @@ var controller_line = core_datasetController.extend({
 		'borderDashOffset',
 		'borderJoinStyle',
 		'borderWidth',
+		'largestAlwaysActive',
 		'cubicInterpolationMode',
 		'fill'
 	],
@@ -5945,8 +5952,13 @@ var controller_line = core_datasetController.extend({
 			line.pivot();
 		}
 
+		var largest = this.getLargestPointIndex(points);
 		// Update Points
 		for (i = 0, ilen = points.length; i < ilen; ++i) {
+			//set largest property
+			if(i === largest){
+				if(config.largestAlwaysActive){ points[i].largest = true;	}
+			}
 			me.updateElement(points[i], i, reset);
 		}
 
@@ -6144,10 +6156,36 @@ var controller_line = core_datasetController.extend({
 			helpers$1.canvas.unclipArea(chart.ctx);
 		}
 
+		
 		// Draw the points
 		for (; i < ilen; ++i) {
+			if(points[i].largest){
+				if(!chart.active || chart.active.length === 0 || chart.active.includes(points[i])){
+					me.setHoverStyle(points[i]);
+				}else{
+					me.removeHoverStyle(points[i]);
+				}
+			}
 			points[i].draw(area);
 		}
+	},
+
+	getLargestPointIndex: function(points){
+		var me = this;
+		var chart = me.chart;
+
+		var largestIndex = undefined;
+		var largestVal = undefined;
+
+		for(var i = 0; i < points.length; i++){
+			var data = chart.data.datasets[points[i]._datasetIndex].data[points[i]._index];
+			if(!largestIndex || largestVal < data){
+				largestVal = data;
+				largestIndex = i;
+			}
+		}
+
+		return largestIndex;
 	},
 
 	/**
@@ -6173,6 +6211,20 @@ var controller_line = core_datasetController.extend({
 		//sets extra border option for this point to be used on draw method
 		model.extraBorder = valueOrDefault$6(options.hoverExtraBorderColor,undefined);  
 		model.radius = valueOrDefault$6(options.hoverRadius, options.radius);
+	},
+	/**
+	 * @protected
+	 */
+	removeHoverStyle: function(point) {
+		var model = point._model;
+		var options = point._options;
+
+		model.backgroundColor = valueOrDefault$6(options.backgroundColor, options.backgroundColor);
+		model.borderColor = valueOrDefault$6(options.borderColor, options.borderColor);
+		model.borderWidth = valueOrDefault$6(options.borderWidth, options.borderWidth);
+		//sets extra border option for this point to be used on draw method
+		model.extraBorder = undefined;
+		model.radius = valueOrDefault$6(options.radius, options.radius);
 	},
 });
 
