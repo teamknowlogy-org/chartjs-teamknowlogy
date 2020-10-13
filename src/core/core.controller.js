@@ -263,10 +263,20 @@ helpers.extend(Chart.prototype, /** @lends Chart */ {
 		var me = this;
 		if(me.config && me.config.data && me.config.data.labelIcons){
 			me.labelIcons = me.config.data.labelIcons.icons.map( v=>{
-				var aux_img = new Image();
-				aux_img.onload = function () { me.update(); }
-				aux_img.src = v;
-				return aux_img;
+				if(v.active){
+					var aux_img = new Image();
+					var aux_img_2 = new Image();
+					aux_img.onload = function () { me.update(); };
+					aux_img_2.onload = function () { me.update(); };
+					aux_img.src = v.active;
+					aux_img_2.src = v.inactive;
+					return {active:aux_img,inactive:aux_img_2};
+				}else{
+					var aux_img = new Image();
+					aux_img.onload = function () { me.update(); };
+					aux_img.src = v;
+					return {active:aux_img,inactive:aux_img};
+				}
 			});
 		}
 	},
