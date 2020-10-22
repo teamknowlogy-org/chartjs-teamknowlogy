@@ -12885,6 +12885,7 @@ function generateTicks(generationOptions, dataRange) {
 	var rmin = dataRange.min;
 	var rmax = dataRange.max;
 	var spacing = helpers$1.niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
+	var forceExactUserInputTicks = generationOptions.forceExactUserInputTicks;
 	var factor, niceMin, niceMax, numSpaces;
 
 	// Beyond MIN_SPACING floating point numbers being to lose precision
@@ -12932,11 +12933,20 @@ function generateTicks(generationOptions, dataRange) {
 
 	niceMin = Math.round(niceMin * factor) / factor;
 	niceMax = Math.round(niceMax * factor) / factor;
-	ticks.push(isNullOrUndef$2(min) ? niceMin : min);
-	for (var j = 1; j < numSpaces; ++j) {
-		ticks.push(Math.round((niceMin + j * spacing) * factor) / factor);
+
+	if(!forceExactUserInputTicks){
+		ticks.push(isNullOrUndef$2(min) ? niceMin : min);
+		for (var j = 1; j < numSpaces; ++j) {
+			ticks.push(Math.round((niceMin + j * spacing) * factor) / factor);
+		}
+		ticks.push(isNullOrUndef$2(max) ? niceMax : max);
+	}else{
+		ticks.push(isNullOrUndef$2(min) ? niceMin : min);
+		for (var j = 1; j < numSpaces; ++j) {
+			ticks.push(Math.round((isNullOrUndef$2(min) ? niceMin : min + j * spacing) * factor) / factor);
+		}
+		ticks.push(isNullOrUndef$2(max) ? niceMax : max);
 	}
-	ticks.push(isNullOrUndef$2(max) ? niceMax : max);
 
 	return ticks;
 }
@@ -13060,6 +13070,7 @@ var scale_linearbase = core_scale.extend({
 			min: tickOpts.min,
 			max: tickOpts.max,
 			precision: tickOpts.precision,
+			forceExactUserInputTicks: tickOpts.forceExactUserInputTicks,
 			stepSize: helpers$1.valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
 		};
 		var ticks = me.ticks = generateTicks(numericGeneratorOptions, me);
