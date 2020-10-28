@@ -9497,6 +9497,8 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 	initializeIconTicks: function(){
 		var me = this;
 		if(me.config && me.config.data && me.config.data.labelIcons){
+			me.config.data.labelIcons.size = me.config.data.labelIcons.size ?me.config.data. labelIcons.size : 18;
+			me.config.data.labelIcons.offset = me.config.data.labelIcons.offset ?me.config.data. labelIcons.offset : {x:-10,y:-5};
 			me.labelIcons = me.config.data.labelIcons.icons.map( v=>{
 				if(v.active){
 					var aux_img = new Image();
@@ -12563,9 +12565,9 @@ var Scale = core_element.extend({
 				if(me.chart.labelIcons[i]){
 						// black and white icons when not hover or not always_active
 					if( (!onhover && i !== labelIcons.always_active) || (onhover && i !== hover_index)){
-						ctx.drawImage(me.chart.labelIcons[i].inactive,item.x-15,item.y-8.5,30,30);
+						ctx.drawImage(me.chart.labelIcons[i].inactive,item.x+labelIcons.offset.x,item.y+labelIcons.offset.y,labelIcons.size,labelIcons.size);
 					}else{
-						ctx.drawImage(me.chart.labelIcons[i].active,item.x-15,item.y-8.5,30,30);
+						ctx.drawImage(me.chart.labelIcons[i].active,item.x+labelIcons.offset.x,item.y+labelIcons.offset.y,labelIcons.size,labelIcons.size);
 					}
 				}
 			}else{

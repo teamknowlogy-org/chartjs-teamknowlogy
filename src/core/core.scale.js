@@ -1351,9 +1351,9 @@ var Scale = Element.extend({
 				if(me.chart.labelIcons[i]){
 						// black and white icons when not hover or not always_active
 					if( (!onhover && i !== labelIcons.always_active) || (onhover && i !== hover_index)){
-						ctx.drawImage(me.chart.labelIcons[i].inactive,item.x-15,item.y-8.5,30,30);
+						ctx.drawImage(me.chart.labelIcons[i].inactive,item.x+labelIcons.offset.x,item.y+labelIcons.offset.y,labelIcons.size,labelIcons.size);
 					}else{
-						ctx.drawImage(me.chart.labelIcons[i].active,item.x-15,item.y-8.5,30,30);
+						ctx.drawImage(me.chart.labelIcons[i].active,item.x+labelIcons.offset.x,item.y+labelIcons.offset.y,labelIcons.size,labelIcons.size);
 					}
 				}
 			}else{
