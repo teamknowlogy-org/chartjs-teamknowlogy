@@ -262,6 +262,8 @@ helpers.extend(Chart.prototype, /** @lends Chart */ {
 	initializeIconTicks: function(){
 		var me = this;
 		if(me.config && me.config.data && me.config.data.labelIcons){
+			me.config.data.labelIcons.size = me.config.data.labelIcons.size ?me.config.data. labelIcons.size : 18;
+			me.config.data.labelIcons.offset = me.config.data.labelIcons.offset ?me.config.data. labelIcons.offset : {x:-10,y:-5};
 			me.labelIcons = me.config.data.labelIcons.icons.map( v=>{
 				if(v.active){
 					var aux_img = new Image();
