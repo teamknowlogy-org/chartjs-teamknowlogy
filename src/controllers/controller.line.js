@@ -91,6 +91,7 @@ module.exports = DatasetController.extend({
 		'borderDashOffset',
 		'borderJoinStyle',
 		'borderWidth',
+		'largestAlwaysActive',
 		'cubicInterpolationMode',
 		'fill'
 	],
@@ -145,8 +146,13 @@ module.exports = DatasetController.extend({
 			line.pivot();
 		}
 
+		var largest = this.getLargestPointIndex(points);
 		// Update Points
 		for (i = 0, ilen = points.length; i < ilen; ++i) {
+			//set largest property
+			if(i === largest){
+				if(config.largestAlwaysActive){ points[i].largest = true;	}
+			}
 			me.updateElement(points[i], i, reset);
 		}
 
@@ -344,10 +350,36 @@ module.exports = DatasetController.extend({
 			helpers.canvas.unclipArea(chart.ctx);
 		}
 
+		
 		// Draw the points
 		for (; i < ilen; ++i) {
+			if(points[i].largest){
+				if(!chart.active || chart.active.length === 0 || chart.active.includes(points[i])){
+					me.setHoverStyle(points[i]);
+				}else{
+					me.removeHoverStyle(points[i]);
+				}
+			}
 			points[i].draw(area);
 		}
+	},
+
+	getLargestPointIndex: function(points){
+		var me = this;
+		var chart = me.chart;
+
+		var largestIndex = undefined;
+		var largestVal = undefined;
+
+		for(var i = 0; i < points.length; i++){
+			var data = chart.data.datasets[points[i]._datasetIndex].data[points[i]._index];
+			if(!largestIndex || largestVal < data){
+				largestVal = data;
+				largestIndex = i;
+			}
+		}
+
+		return largestIndex;
 	},
 
 	/**
@@ -373,5 +405,20 @@ module.exports = DatasetController.extend({
 		//sets extra border option for this point to be used on draw method
 		model.extraBorder = valueOrDefault(options.hoverExtraBorderColor,undefined);  
 		model.radius = valueOrDefault(options.hoverRadius, options.radius);
+	},
+	/**
+	 * @protected
+	 */
+	removeHoverStyle: function(point) {
+		var model = point._model;
+		var options = point._options;
+		var getHoverColor = helpers.getHoverColor;
+
+		model.backgroundColor = valueOrDefault(options.backgroundColor, options.backgroundColor);
+		model.borderColor = valueOrDefault(options.borderColor, options.borderColor);
+		model.borderWidth = valueOrDefault(options.borderWidth, options.borderWidth);
+		//sets extra border option for this point to be used on draw method
+		model.extraBorder = undefined;
+		model.radius = valueOrDefault(options.radius, options.radius);
 	},
 });

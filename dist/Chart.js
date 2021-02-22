@@ -4526,6 +4526,12 @@ var element_point = core_element.extend({
 
 	draw: function(chartArea) {
 		var vm = this._view;
+		if(this.largest){
+			vm.backgroundColor = this._model.backgroundColor;
+			vm.borderColor = this._model.borderColor;
+			vm.borderWidth = this._model.borderWidth;
+			vm.extraBorder = this._model.extraBorder;
+		}
 		var ctx = this._chart.ctx;
 		var pointStyle = vm.pointStyle;
 		var rotation = vm.rotation;
@@ -4534,7 +4540,7 @@ var element_point = core_element.extend({
 		var y = vm.y;
 		var globalDefaults = core_defaults.global;
 		var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
-
+		
 		if (vm.skip) {
 			return;
 		}
@@ -5891,6 +5897,7 @@ var controller_line = core_datasetController.extend({
 		'borderDashOffset',
 		'borderJoinStyle',
 		'borderWidth',
+		'largestAlwaysActive',
 		'cubicInterpolationMode',
 		'fill'
 	],
@@ -5945,8 +5952,13 @@ var controller_line = core_datasetController.extend({
 			line.pivot();
 		}
 
+		var largest = this.getLargestPointIndex(points);
 		// Update Points
 		for (i = 0, ilen = points.length; i < ilen; ++i) {
+			//set largest property
+			if(i === largest){
+				if(config.largestAlwaysActive){ points[i].largest = true;	}
+			}
 			me.updateElement(points[i], i, reset);
 		}
 
@@ -6144,10 +6156,36 @@ var controller_line = core_datasetController.extend({
 			helpers$1.canvas.unclipArea(chart.ctx);
 		}
 
+		
 		// Draw the points
 		for (; i < ilen; ++i) {
+			if(points[i].largest){
+				if(!chart.active || chart.active.length === 0 || chart.active.includes(points[i])){
+					me.setHoverStyle(points[i]);
+				}else{
+					me.removeHoverStyle(points[i]);
+				}
+			}
 			points[i].draw(area);
 		}
+	},
+
+	getLargestPointIndex: function(points){
+		var me = this;
+		var chart = me.chart;
+
+		var largestIndex = undefined;
+		var largestVal = undefined;
+
+		for(var i = 0; i < points.length; i++){
+			var data = chart.data.datasets[points[i]._datasetIndex].data[points[i]._index];
+			if(!largestIndex || largestVal < data){
+				largestVal = data;
+				largestIndex = i;
+			}
+		}
+
+		return largestIndex;
 	},
 
 	/**
@@ -6173,6 +6211,20 @@ var controller_line = core_datasetController.extend({
 		//sets extra border option for this point to be used on draw method
 		model.extraBorder = valueOrDefault$6(options.hoverExtraBorderColor,undefined);  
 		model.radius = valueOrDefault$6(options.hoverRadius, options.radius);
+	},
+	/**
+	 * @protected
+	 */
+	removeHoverStyle: function(point) {
+		var model = point._model;
+		var options = point._options;
+
+		model.backgroundColor = valueOrDefault$6(options.backgroundColor, options.backgroundColor);
+		model.borderColor = valueOrDefault$6(options.borderColor, options.borderColor);
+		model.borderWidth = valueOrDefault$6(options.borderWidth, options.borderWidth);
+		//sets extra border option for this point to be used on draw method
+		model.extraBorder = undefined;
+		model.radius = valueOrDefault$6(options.radius, options.radius);
 	},
 });
 
@@ -9441,11 +9493,23 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 	initializeIconTicks: function(){
 		var me = this;
 		if(me.config && me.config.data && me.config.data.labelIcons){
+			me.config.data.labelIcons.size = me.config.data.labelIcons.size ?me.config.data. labelIcons.size : 18;
+			me.config.data.labelIcons.offset = me.config.data.labelIcons.offset ?me.config.data. labelIcons.offset : {x:-10,y:-5};
 			me.labelIcons = me.config.data.labelIcons.icons.map( v=>{
-				var aux_img = new Image();
-				aux_img.onload = function () { me.update(); };
-				aux_img.src = v;
-				return aux_img;
+				if(v.active){
+					var aux_img = new Image();
+					var aux_img_2 = new Image();
+					aux_img.onload = function () { me.update(); };
+					aux_img_2.onload = function () { me.update(); };
+					aux_img.src = v.active;
+					aux_img_2.src = v.inactive;
+					return {active:aux_img,inactive:aux_img_2};
+				}else{
+					var aux_img = new Image();
+					aux_img.onload = function () { me.update(); };
+					aux_img.src = v;
+					return {active:aux_img,inactive:aux_img};
+				}
 			});
 		}
 	},
@@ -12494,15 +12558,13 @@ var Scale = core_element.extend({
 			
 			ctx.save();
 			if(labelIcons && (item.position.localeCompare(labelIcons.position) === 0)){
-				ctx.drawImage(me.chart.labelIcons[i],item.x-15,item.y-10,30,30);
-				// black and white icons when not hover or not always_active
-				if( (!onhover && i !== labelIcons.always_active) || (onhover && i !== hover_index)){
-					var imgData = ctx.getImageData(item.x-12, item.y-7, 23, 25);
-					for (var ix = 0; ix < imgData.data.length; ix += 4) {
-						var med = (imgData.data[ix] + imgData.data[ix + 1] + imgData.data[ix + 2]) / 3;
-						imgData.data[ix] = imgData.data[ix + 1] = imgData.data[ix + 2] = med;
+				if(me.chart.labelIcons[i]){
+						// black and white icons when not hover or not always_active
+					if( (!onhover && i !== labelIcons.always_active) || (onhover && i !== hover_index)){
+						ctx.drawImage(me.chart.labelIcons[i].inactive,item.x+labelIcons.offset.x,item.y+labelIcons.offset.y,labelIcons.size,labelIcons.size);
+					}else{
+						ctx.drawImage(me.chart.labelIcons[i].active,item.x+labelIcons.offset.x,item.y+labelIcons.offset.y,labelIcons.size,labelIcons.size);
 					}
-				ctx.putImageData(imgData, item.x-12,  item.y-7);
 				}
 			}else{
 				// Make sure we draw text in the correct color and font
@@ -12826,6 +12888,7 @@ function generateTicks(generationOptions, dataRange) {
 	var rmin = dataRange.min;
 	var rmax = dataRange.max;
 	var spacing = helpers$1.niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
+	var forceExactUserInputTicks = generationOptions.forceExactUserInputTicks;
 	var factor, niceMin, niceMax, numSpaces;
 
 	// Beyond MIN_SPACING floating point numbers being to lose precision
@@ -12873,11 +12936,20 @@ function generateTicks(generationOptions, dataRange) {
 
 	niceMin = Math.round(niceMin * factor) / factor;
 	niceMax = Math.round(niceMax * factor) / factor;
-	ticks.push(isNullOrUndef$2(min) ? niceMin : min);
-	for (var j = 1; j < numSpaces; ++j) {
-		ticks.push(Math.round((niceMin + j * spacing) * factor) / factor);
+
+	if(!forceExactUserInputTicks){
+		ticks.push(isNullOrUndef$2(min) ? niceMin : min);
+		for (var j = 1; j < numSpaces; ++j) {
+			ticks.push(Math.round((niceMin + j * spacing) * factor) / factor);
+		}
+		ticks.push(isNullOrUndef$2(max) ? niceMax : max);
+	}else{
+		ticks.push(isNullOrUndef$2(min) ? niceMin : min);
+		for (var j = 1; j < numSpaces; ++j) {
+			ticks.push(Math.round((isNullOrUndef$2(min) ? niceMin : min + j * spacing) * factor) / factor);
+		}
+		ticks.push(isNullOrUndef$2(max) ? niceMax : max);
 	}
-	ticks.push(isNullOrUndef$2(max) ? niceMax : max);
 
 	return ticks;
 }
@@ -13001,6 +13073,7 @@ var scale_linearbase = core_scale.extend({
 			min: tickOpts.min,
 			max: tickOpts.max,
 			precision: tickOpts.precision,
+			forceExactUserInputTicks: tickOpts.forceExactUserInputTicks,
 			stepSize: helpers$1.valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
 		};
 		var ticks = me.ticks = generateTicks(numericGeneratorOptions, me);
