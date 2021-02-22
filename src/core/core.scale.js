@@ -1380,6 +1380,7 @@ var Scale = Element.extend({
 
 				label = item.label;
 				y = item.textOffset;
+				if (optionTicks.y_drawing_offset) { y += optionTicks.y_drawing_offset; }
 				if (isArray(label)) {
 					for (j = 0, jlen = label.length; j < jlen; ++j) {
 						// We just make sure the multiline element is a string here..

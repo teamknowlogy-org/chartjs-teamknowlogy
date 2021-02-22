@@ -1,7 +1,7 @@
 /*!
  * Chart.js v2.9.3
  * https://www.chartjs.org
- * (c) 2020 Chart.js Contributors
+ * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
 (function (global, factory) {
@@ -12530,6 +12530,7 @@ var Scale = core_element.extend({
 
 				label = item.label;
 				y = item.textOffset;
+				if (optionTicks.y_drawing_offset) { y += optionTicks.y_drawing_offset; }
 				if (isArray(label)) {
 					for (j = 0, jlen = label.length; j < jlen; ++j) {
 						// We just make sure the multiline element is a string here..
