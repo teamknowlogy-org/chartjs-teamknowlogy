@@ -94,7 +94,7 @@ function drawBorder(ctx, vm, arc) {
 module.exports = Element.extend({
 	_type: 'arc',
 
-	inLabelRange: function(mouseX) {
+	inLabelRange: function (mouseX) {
 		var vm = this._view;
 
 		if (vm) {
@@ -103,11 +103,11 @@ module.exports = Element.extend({
 		return false;
 	},
 
-	inRange: function(chartX, chartY) {
+	inRange: function (chartX, chartY) {
 		var vm = this._view;
 
 		if (vm) {
-			var pointRelativePosition = helpers.getAngleFromPoint(vm, {x: chartX, y: chartY});
+			var pointRelativePosition = helpers.getAngleFromPoint(vm, { x: chartX, y: chartY });
 			var angle = pointRelativePosition.angle;
 			var distance = pointRelativePosition.distance;
 
@@ -133,7 +133,7 @@ module.exports = Element.extend({
 		return false;
 	},
 
-	getCenterPoint: function() {
+	getCenterPoint: function () {
 		var vm = this._view;
 		var halfAngle = (vm.startAngle + vm.endAngle) / 2;
 		var halfRadius = (vm.innerRadius + vm.outerRadius) / 2;
@@ -143,12 +143,12 @@ module.exports = Element.extend({
 		};
 	},
 
-	getArea: function() {
+	getArea: function () {
 		var vm = this._view;
 		return Math.PI * ((vm.endAngle - vm.startAngle) / (2 * Math.PI)) * (Math.pow(vm.outerRadius, 2) - Math.pow(vm.innerRadius, 2));
 	},
 
-	tooltipPosition: function() {
+	tooltipPosition: function () {
 		var vm = this._view;
 		var centreAngle = vm.startAngle + ((vm.endAngle - vm.startAngle) / 2);
 		var rangeFromCentre = (vm.outerRadius - vm.innerRadius) / 2 + vm.innerRadius;
@@ -159,7 +159,7 @@ module.exports = Element.extend({
 		};
 	},
 
-	draw: function() {
+	draw: function () {
 		var ctx = this._chart.ctx;
 		var vm = this._view;
 		var pixelMargin = (vm.borderAlign === 'inner') ? 0.33 : 0;
@@ -179,7 +179,8 @@ module.exports = Element.extend({
 
 		ctx.fillStyle = vm.backgroundColor;
 		ctx.strokeStyle = vm.borderColor;
-
+		let realStart = arc.startAngle;
+		let realEnd = arc.endAngle;
 		if (arc.fullCircles) {
 			arc.endAngle = arc.startAngle + TAU;
 			ctx.beginPath();
@@ -202,21 +203,21 @@ module.exports = Element.extend({
 			drawBorder(ctx, vm, arc);
 		}
 		//drawing custom outstick
-		if(vm.outStick && vm.outStick.length){
-			if((vm.outStick.minVal && vm.value) ? (vm.value >= vm.outStick.minVal) : true ){
-				var angle = (arc.startAngle + arc.endAngle) / 2;
+		if (vm.outStick && vm.outStick.length) {
+			if ((vm.outStick.minVal && vm.value) ? (vm.value >= vm.outStick.minVal) : true) {
+				var angle = (realStart + realEnd) / 2;
 				var vx = Math.cos(angle);
 				var vy = Math.sin(angle);
-				var r0 = arc.outerRadius-1;
-				var r1 = arc.outerRadius+vm.outStick.length;
+				var r0 = arc.outerRadius - 1;
+				var r1 = arc.outerRadius + vm.outStick.length;
 				var x0 = arc.x + vx * r0;
 				var y0 = arc.y + vy * r0;
 				var x1 = arc.x + vx * r1;
 				var y1 = arc.y + vy * r1;
-			
+
 				ctx.save();
 				ctx.strokeStyle = vm.backgroundColor;
-				ctx.lineCap =  vm.outStick.capStyle? vm.outStick.capStyle: 'round';
+				ctx.lineCap = vm.outStick.capStyle ? vm.outStick.capStyle : 'round';
 				ctx.beginPath();
 				ctx.moveTo(x0, y0);
 				ctx.lineTo(x1, y1);
