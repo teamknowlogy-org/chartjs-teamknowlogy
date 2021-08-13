@@ -20,6 +20,10 @@ defaults._set('global', {
 			borderDashOffset: 0.0,
 			borderJoinStyle: 'miter',
 			capBezierPoints: true,
+			shadowColor : 'transparent',
+			shadowBlur : 0,
+			shadowOffsetX : 0,
+			shadowOffsetY : 0,
 			fill: true, // do we fill in the area between the line and its base axis
 		}
 	}
@@ -74,6 +78,10 @@ module.exports = Element.extend({
 		ctx.lineJoin = vm.borderJoinStyle || globalOptionLineElements.borderJoinStyle;
 		ctx.lineWidth = valueOrDefault(vm.borderWidth, globalOptionLineElements.borderWidth);
 		ctx.strokeStyle = vm.borderColor || globalDefaults.defaultColor;
+		ctx.shadowColor = vm.shadowColor || globalDefaults.shadowColor;
+		ctx.shadowBlur = vm.shadowBlur || globalDefaults.shadowBlur;
+		ctx.shadowOffsetX = vm.shadowOffsetX || globalDefaults.shadowOffsetX;
+		ctx.shadowOffsetY = vm.shadowOffsetY || globalDefaults.shadowOffsetY;
 
 		// Stroke Line
 		ctx.beginPath();
