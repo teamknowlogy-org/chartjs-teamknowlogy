@@ -63,7 +63,7 @@ var exports = {
 		}
 	},
 
-	drawPoint: function(ctx, style, radius, x, y, rotation,extraBorder) {
+	drawPoint: function(ctx, style, radius, x, y, rotation,extraBorder,stroke) {
 		var type, xOffset, yOffset, size, cornerRadius;
 		var rad = (rotation || 0) * RAD_PER_DEG;
 
@@ -189,6 +189,9 @@ var exports = {
 		}
 
 		ctx.fill();
+		if(!stroke){
+			ctx.lineWidth = 1;
+		}
 		ctx.stroke();
 	},
 

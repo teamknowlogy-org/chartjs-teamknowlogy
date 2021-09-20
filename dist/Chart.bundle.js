@@ -2774,7 +2774,7 @@ var exports$1 = {
 		}
 	},
 
-	drawPoint: function(ctx, style, radius, x, y, rotation,extraBorder) {
+	drawPoint: function(ctx, style, radius, x, y, rotation,extraBorder,stroke) {
 		var type, xOffset, yOffset, size, cornerRadius;
 		var rad = (rotation || 0) * RAD_PER_DEG;
 
@@ -2900,6 +2900,9 @@ var exports$1 = {
 		}
 
 		ctx.fill();
+		if(!stroke){
+			ctx.lineWidth = 1;
+		}
 		ctx.stroke();
 	},
 
@@ -4539,11 +4542,18 @@ var element_point = core_element.extend({
 
 	draw: function(chartArea) {
 		var vm = this._view;
+		var stroke = false;
 		if(this.largest){
 			vm.backgroundColor = this._model.backgroundColor;
 			vm.borderColor = this._model.borderColor;
 			vm.borderWidth = this._model.borderWidth;
 			vm.extraBorder = this._model.extraBorder;
+		}
+		//preventing stroke when inactive cause chartjs plugin style generates a bug when hovering
+		if(this._chart.active && this._chart.active.length){
+			if(this._chart.active.includes(this)){
+				stroke = true;
+			}
 		}
 		var ctx = this._chart.ctx;
 		var pointStyle = vm.pointStyle;
@@ -4564,7 +4574,7 @@ var element_point = core_element.extend({
 			ctx.lineWidth = valueOrDefault$2(vm.borderWidth, globalDefaults.elements.point.borderWidth);
 			ctx.fillStyle = vm.backgroundColor || defaultColor;
 			//added new argument, extraBorder
-			helpers$1.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation,vm.extraBorder);
+			helpers$1.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation,vm.extraBorder,stroke);
 		}
 	}
 });

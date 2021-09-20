@@ -69,11 +69,18 @@ module.exports = Element.extend({
 
 	draw: function(chartArea) {
 		var vm = this._view;
+		var stroke = false;
 		if(this.largest){
 			vm.backgroundColor = this._model.backgroundColor;
 			vm.borderColor = this._model.borderColor;
 			vm.borderWidth = this._model.borderWidth;
 			vm.extraBorder = this._model.extraBorder;
+		}
+		//preventing stroke when inactive cause chartjs plugin style generates a bug when hovering
+		if(this._chart.active && this._chart.active.length){
+			if(this._chart.active.includes(this)){
+				stroke = true;
+			}
 		}
 		var ctx = this._chart.ctx;
 		var pointStyle = vm.pointStyle;
@@ -94,7 +101,7 @@ module.exports = Element.extend({
 			ctx.lineWidth = valueOrDefault(vm.borderWidth, globalDefaults.elements.point.borderWidth);
 			ctx.fillStyle = vm.backgroundColor || defaultColor;
 			//added new argument, extraBorder
-			helpers.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation,vm.extraBorder);
+			helpers.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation,vm.extraBorder,stroke);
 		}
 	}
 });
