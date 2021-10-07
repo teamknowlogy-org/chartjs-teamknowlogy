@@ -500,6 +500,10 @@ var Scale = Element.extend({
 		var startPixel, endPixel;
 
 		if (me.isHorizontal()) {
+			//agrgando longitud forzada desde options layout
+			if(me.chart.config.options.layout.horizontalAxisLength){
+				me.right = me.chart.config.options.layout.horizontalAxisLength;
+			}
 			startPixel = me.left;
 			endPixel = me.right;
 		} else {
@@ -1204,6 +1208,8 @@ var Scale = Element.extend({
 				textOffset = position === 'top'
 					? ((!rotation ? 0.5 : 1) - lineCount) * lineHeight
 					: (!rotation ? 0.5 : 0) * lineHeight;
+				//agregando movimiento de scroll
+				x += me.chart.x;
 			} else {
 				y = pixel;
 				textOffset = (1 - lineCount) * lineHeight / 2;

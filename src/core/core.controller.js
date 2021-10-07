@@ -173,7 +173,8 @@ helpers.extend(Chart.prototype, /** @lends Chart */ {
 	 */
 	construct: function(item, config) {
 		var me = this;
-
+		//agregando coordenada x del scroll horizontal como default en 0;
+		me.x = 0;
 		config = initConfig(config);
 
 		var context = platform.acquireContext(item, config);
@@ -1102,6 +1103,30 @@ helpers.extend(Chart.prototype, /** @lends Chart */ {
 		} else {
 			me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions);
 		}
+
+		//agregando eventos de scroll mobile
+		if(me.chart.options.layout.horizontalScroll){
+			if (e.native.type === 'touchstart') {
+				if(!me.chart.x){ me.chart.x = 0;}
+				me.chart.touchmove_latest_x = e.x;
+			}
+			
+			if (e.native.type === 'touchmove') {
+				if(!me.chart.x){ me.chart.x = 0;}
+					me.chart.x -= (me.chart.touchmove_latest_x - e.x);
+					me.chart.touchmove_latest_x = e.x;
+				if(me.chart.x > 5){
+					me.chart.x = 5;
+				}
+				if(me.chart.x < -me.chartArea.right){
+					me.chart.x = -me.chartArea.right;
+				}
+				me.update();
+			}
+		}else{
+			me.chart.x = 0;
+		}
+
 
 		// Invoke onHover hook
 		// Need to call with native event here to not break backwards compatibility

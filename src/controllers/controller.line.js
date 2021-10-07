@@ -181,6 +181,8 @@ module.exports = DatasetController.extend({
 		var options = me._resolveDataElementOptions(point, index);
 
 		x = xScale.getPixelForValue(typeof value === 'object' ? value : NaN, index, datasetIndex);
+		//agregando offset el scroll horizontal
+		x += me.chart.x;
 		y = reset ? yScale.getBasePixel() : me.calculatePointY(value, index, datasetIndex);
 
 		// Utility

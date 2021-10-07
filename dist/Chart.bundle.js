@@ -6010,6 +6010,8 @@ var controller_line = core_datasetController.extend({
 		var options = me._resolveDataElementOptions(point, index);
 
 		x = xScale.getPixelForValue(typeof value === 'object' ? value : NaN, index, datasetIndex);
+		//agregando offset el scroll horizontal
+		x += me.chart.x;
 		y = reset ? yScale.getBasePixel() : me.calculatePointY(value, index, datasetIndex);
 
 		// Utility
@@ -9427,7 +9429,8 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 	 */
 	construct: function(item, config) {
 		var me = this;
-
+		//agregando coordenada x del scroll horizontal como default en 0;
+		me.x = 0;
 		config = initConfig(config);
 
 		var context = platform.acquireContext(item, config);
@@ -10356,6 +10359,30 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 		} else {
 			me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions);
 		}
+
+		//agregando eventos de scroll mobile
+		if(me.chart.options.layout.horizontalScroll){
+			if (e.native.type === 'touchstart') {
+				if(!me.chart.x){ me.chart.x = 0;}
+				me.chart.touchmove_latest_x = e.x;
+			}
+			
+			if (e.native.type === 'touchmove') {
+				if(!me.chart.x){ me.chart.x = 0;}
+					me.chart.x -= (me.chart.touchmove_latest_x - e.x);
+					me.chart.touchmove_latest_x = e.x;
+				if(me.chart.x > 5){
+					me.chart.x = 5;
+				}
+				if(me.chart.x < -me.chartArea.right){
+					me.chart.x = -me.chartArea.right;
+				}
+				me.update();
+			}
+		}else{
+			me.chart.x = 0;
+		}
+
 
 		// Invoke onHover hook
 		// Need to call with native event here to not break backwards compatibility
@@ -11733,6 +11760,10 @@ var Scale = core_element.extend({
 		var startPixel, endPixel;
 
 		if (me.isHorizontal()) {
+			//agrgando longitud forzada desde options layout
+			if(me.chart.config.options.layout.horizontalAxisLength){
+				me.right = me.chart.config.options.layout.horizontalAxisLength;
+			}
 			startPixel = me.left;
 			endPixel = me.right;
 		} else {
@@ -12437,6 +12468,8 @@ var Scale = core_element.extend({
 				textOffset = position === 'top'
 					? ((!rotation ? 0.5 : 1) - lineCount) * lineHeight
 					: (!rotation ? 0.5 : 0) * lineHeight;
+				//agregando movimiento de scroll
+				x += me.chart.x;
 			} else {
 				y = pixel;
 				textOffset = (1 - lineCount) * lineHeight / 2;
