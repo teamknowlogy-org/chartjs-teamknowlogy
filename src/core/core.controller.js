@@ -1103,25 +1103,31 @@ helpers.extend(Chart.prototype, /** @lends Chart */ {
 		} else {
 			me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions);
 		}
-
 		//agregando eventos de scroll mobile
 		if(me.chart.options.layout.horizontalScroll){
 			if (e.native.type === 'touchstart') {
 				if(!me.chart.x){ me.chart.x = 0;}
 				me.chart.touchmove_latest_x = e.x;
 			}
-			
 			if (e.native.type === 'touchmove') {
 				if(!me.chart.x){ me.chart.x = 0;}
-					me.chart.x -= (me.chart.touchmove_latest_x - e.x);
-					me.chart.touchmove_latest_x = e.x;
-				if(me.chart.x > 5){
-					me.chart.x = 5;
+				me.chart.x -= (me.chart.touchmove_latest_x - e.x);
+				me.chart.touchmove_latest_x = e.x;
+			if(me.chart.x > 5){
+				me.chart.x = 5;
+			}
+			if(!me.chart.x_limit){
+				let yaxis = me.chart.options.scales.yAxes.filter((element )=> { return element.display}).length;
+				me.chart.x_limit = 0 - (me.chartArea.right );
+				if(yaxis > 1){
+					me.chart.x_limit = 0 - (me.chartArea.right + (me.chartArea.right *0.42));
 				}
-				if(me.chart.x < -me.chartArea.right){
-					me.chart.x = -me.chartArea.right;
-				}
-				me.update();
+			
+			}
+			if(me.chart.x < me.chart.x_limit){
+				me.chart.x = me.chart.x_limit;
+			}
+			me.update();
 			}
 		}else{
 			me.chart.x = 0;

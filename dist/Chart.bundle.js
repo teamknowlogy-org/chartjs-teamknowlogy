@@ -5007,10 +5007,10 @@ var controller_bar = core_datasetController.extend({
 		var ruler = me._ruler || me.getRuler();
 		var vpixels = me.calculateBarValuePixels(me.index, index, options);
 		var ipixels = me.calculateBarIndexPixels(me.index, index, ruler, options);
-
 		model.horizontal = horizontal;
 		model.base = reset ? base : vpixels.base;
 		model.x = horizontal ? reset ? base : vpixels.head : ipixels.center;
+		model.x += me.chart.x;
 		model.y = horizontal ? ipixels.center : reset ? base : vpixels.head;
 		model.height = horizontal ? ipixels.size : undefined;
 		model.width = horizontal ? undefined : ipixels.size;
@@ -10359,25 +10359,26 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 		} else {
 			me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions);
 		}
-
 		//agregando eventos de scroll mobile
 		if(me.chart.options.layout.horizontalScroll){
 			if (e.native.type === 'touchstart') {
 				if(!me.chart.x){ me.chart.x = 0;}
 				me.chart.touchmove_latest_x = e.x;
 			}
-			
 			if (e.native.type === 'touchmove') {
 				if(!me.chart.x){ me.chart.x = 0;}
-					me.chart.x -= (me.chart.touchmove_latest_x - e.x);
-					me.chart.touchmove_latest_x = e.x;
-				if(me.chart.x > 5){
-					me.chart.x = 5;
-				}
-				if(me.chart.x < -me.chartArea.right){
-					me.chart.x = -me.chartArea.right;
-				}
-				me.update();
+				me.chart.x -= (me.chart.touchmove_latest_x - e.x);
+				me.chart.touchmove_latest_x = e.x;
+			if(me.chart.x > 5){
+				me.chart.x = 5;
+			}
+			if(!me.chart.x_limit){
+				me.chart.x_limit = 0 - (me.chartArea.right + (me.chartArea.right *0.42));
+			}
+			if(me.chart.x < me.chart.x_limit){
+				me.chart.x = me.chart.x_limit;
+			}
+			me.update();
 			}
 		}else{
 			me.chart.x = 0;
@@ -12655,6 +12656,17 @@ var Scale = core_element.extend({
 					ctx.fillText(label, 0, y);
 				}
 			}
+			ctx.restore();
+		}
+		if(me.position === 'bottom' && me.chart.options.layout.horizontalScroll){
+			ctx.globalCompositeOperation = 'source-over';
+			ctx.save();
+			ctx.globalCompositeOperation = 'destination-out';
+			ctx.fillStyle = 'red';
+			ctx.beginPath();
+			ctx.rect(0, me.top, (me.left-me.paddingLeft), me.height);
+			ctx.rect(me.left+me.width, me.top, me.right-me.left-me.width, me.height);
+			ctx.fill();
 			ctx.restore();
 		}
 	},

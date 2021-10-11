@@ -89,8 +89,11 @@ module.exports = DatasetController.extend({
 		var options = me._resolveDataElementOptions(point, index);
 		var data = me.getDataset().data[index];
 		var dsIndex = me.index;
-
 		var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(typeof data === 'object' ? data : NaN, index, dsIndex);
+		x = x + me.chart.x;
+			if(x < me.chart.chartArea.left){
+				x = -200;
+			}
 		var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(data, index, dsIndex);
 
 		point._xScale = xScale;

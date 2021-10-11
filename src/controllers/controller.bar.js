@@ -215,10 +215,10 @@ module.exports = DatasetController.extend({
 		var ruler = me._ruler || me.getRuler();
 		var vpixels = me.calculateBarValuePixels(me.index, index, options);
 		var ipixels = me.calculateBarIndexPixels(me.index, index, ruler, options);
-
 		model.horizontal = horizontal;
 		model.base = reset ? base : vpixels.base;
 		model.x = horizontal ? reset ? base : vpixels.head : ipixels.center;
+		model.x += me.chart.x;
 		model.y = horizontal ? ipixels.center : reset ? base : vpixels.head;
 		model.height = horizontal ? ipixels.size : undefined;
 		model.width = horizontal ? undefined : ipixels.size;

@@ -1397,6 +1397,17 @@ var Scale = Element.extend({
 			}
 			ctx.restore();
 		}
+		if(me.position === 'bottom' && me.chart.options.layout.horizontalScroll){
+			ctx.globalCompositeOperation = 'source-over';
+			ctx.save();
+			ctx.globalCompositeOperation = 'destination-out';
+			ctx.fillStyle = 'red';
+			ctx.beginPath();
+			ctx.rect(0, me.top, (me.left-me.paddingLeft), me.height);
+			ctx.rect(me.left+me.width, me.top, me.right-me.left-me.width, me.height);
+			ctx.fill();
+			ctx.restore();
+		}
 	},
 
 	/**
@@ -1442,7 +1453,6 @@ var Scale = Element.extend({
 		var position = options.position;
 		var rotation = 0;
 		var scaleLabelX, scaleLabelY;
-
 		if (me.isHorizontal()) {
 			scaleLabelX = me.left + me.width / 2; // midpoint of the width
 			scaleLabelY = position === 'bottom'
@@ -1456,7 +1466,6 @@ var Scale = Element.extend({
 			scaleLabelY = me.top + me.height / 2;
 			rotation = isLeft ? -0.5 * Math.PI : 0.5 * Math.PI;
 		}
-
 		ctx.save();
 		ctx.translate(scaleLabelX, scaleLabelY);
 		ctx.rotate(rotation);
@@ -1470,11 +1479,9 @@ var Scale = Element.extend({
 
 	draw: function(chartArea) {
 		var me = this;
-
 		if (!me._isVisible()) {
 			return;
 		}
-
 		me._drawGrid(chartArea);
 		me._drawTitle();
 		me._drawLabels();
