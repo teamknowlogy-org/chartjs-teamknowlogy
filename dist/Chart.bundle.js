@@ -1,7 +1,7 @@
 /*!
  * Chart.js v2.9.3
  * https://www.chartjs.org
- * (c) 2021 Chart.js Contributors
+ * (c) 2022 Chart.js Contributors
  * Released under the MIT License
  */
 (function (global, factory) {
@@ -5306,8 +5306,11 @@ var controller_bubble = core_datasetController.extend({
 		var options = me._resolveDataElementOptions(point, index);
 		var data = me.getDataset().data[index];
 		var dsIndex = me.index;
-
 		var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(typeof data === 'object' ? data : NaN, index, dsIndex);
+		x = x + me.chart.x;
+			if(x < me.chart.chartArea.left){
+				x = -200;
+			}
 		var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(data, index, dsIndex);
 
 		point._xScale = xScale;
@@ -10373,7 +10376,12 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 				me.chart.x = 5;
 			}
 			if(!me.chart.x_limit){
-				me.chart.x_limit = 0 - (me.chartArea.right + (me.chartArea.right *0.42));
+				let yaxis = me.chart.options.scales.yAxes.filter((element )=> { return element.display}).length;
+				me.chart.x_limit = 0 - (me.chartArea.right );
+				if(yaxis > 1){
+					me.chart.x_limit = 0 - (me.chartArea.right + (me.chartArea.right *0.42));
+				}
+			
 			}
 			if(me.chart.x < me.chart.x_limit){
 				me.chart.x = me.chart.x_limit;
@@ -12714,7 +12722,6 @@ var Scale = core_element.extend({
 		var position = options.position;
 		var rotation = 0;
 		var scaleLabelX, scaleLabelY;
-
 		if (me.isHorizontal()) {
 			scaleLabelX = me.left + me.width / 2; // midpoint of the width
 			scaleLabelY = position === 'bottom'
@@ -12728,7 +12735,6 @@ var Scale = core_element.extend({
 			scaleLabelY = me.top + me.height / 2;
 			rotation = isLeft ? -0.5 * Math.PI : 0.5 * Math.PI;
 		}
-
 		ctx.save();
 		ctx.translate(scaleLabelX, scaleLabelY);
 		ctx.rotate(rotation);
@@ -12742,11 +12748,9 @@ var Scale = core_element.extend({
 
 	draw: function(chartArea) {
 		var me = this;
-
 		if (!me._isVisible()) {
 			return;
 		}
-
 		me._drawGrid(chartArea);
 		me._drawTitle();
 		me._drawLabels();
