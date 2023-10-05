@@ -1329,18 +1329,25 @@ var Scale = Element.extend({
 		var i, j, ilen, jlen, item, tickFont, label, y, next_y;
 
 		//checking if there are hovered elements
-		if(chart.active && chart.active.length)
-		for(let a of chart.active){ 
-			// when there are hovered elements get the position info
-			onhover = true;
-			hover_index = a._index;
-			aux_x = a._model.x;
-			if(a._datasetIndex === optionTicks.datasetIndexHover){
-				//saving active element for this tickset
-				activeElement = a;
-				//calculating tick to be hightlighted based on distance
-				activeElement.hoverTick = me._calculateDistancesFromElement(items,activeElement);
-			}
+		if(chart.active && chart.active.length){
+			for(let a of chart.active){ 
+				// when there are hovered elements get the position info
+				onhover = true;
+				hover_index = a._index;
+				aux_x = a._model.x;
+				if(a._datasetIndex === optionTicks.datasetIndexHover){
+					//saving active element for this tickset
+					activeElement = a;
+				
+					//calculating tick to be hightlighted based on distance
+					activeElement.hoverTick = me._calculateDistancesFromElement(items,activeElement);
+					
+				}else{
+					if(!horizontal_label_hover && items.length && items[0].isHorizontal){
+						horizontal_label_hover = me._calculateDistancesFromElement(items,a);
+					}
+				}
+		}
 		}
 	
 		for (i = 0, ilen = items.length; i < ilen; ++i) {
@@ -1372,10 +1379,9 @@ var Scale = Element.extend({
 				ctx.textAlign = item.textAlign;
 
 				//set on hover style to tick fill that are on the x or y range depending on orientation
-				if(optionTicks.hoverColor && onhover){
-					if(item.isHorizontal){
-						if( item.x === aux_x ){  ctx.fillStyle=optionTicks.hoverColor; }
-					}
+				//set hover color for the horizontal closest tick, calculated before
+				if(optionTicks.hoverColor && onhover && item.isHorizontal && horizontal_label_hover === item){
+					ctx.fillStyle=optionTicks.hoverColor; 
 				}
 				//overriding fillstyle with dataset background color
 				if(activeElement && activeElement.hoverTick && activeElement.hoverTick === item ){
