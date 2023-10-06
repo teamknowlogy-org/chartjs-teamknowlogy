@@ -12601,7 +12601,7 @@ var Scale = core_element.extend({
 		var ctx = me.ctx;
 		var items = me._labelItems || (me._labelItems = me._computeLabelItems());
 		var i, j, ilen, jlen, item, tickFont, label, y, next_y;
-
+		var horizontal_label_hover = null;
 		//checking if there are hovered elements
 		if(chart.active && chart.active.length){
 			for(let a of chart.active){ 
