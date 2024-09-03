@@ -9756,7 +9756,9 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 	update: function (config) {
 		var me = this;
 		var i, ilen;
-
+		if(!me.ctx){
+			return;
+		}
 		if (!config || typeof config !== 'object') {
 			// backwards compatibility
 			config = {
@@ -11405,6 +11407,7 @@ function computeLabelSizes(ctx, tickFonts, ticks, caches) {
 	for (i = 0; i < length; ++i) {
 		label = ticks[i].label;
 		tickFont = ticks[i].major ? tickFonts.major : tickFonts.minor;
+		console.log();
 		ctx.font = fontString = tickFont.string;
 		cache = caches[fontString] = caches[fontString] || {data: {}, gc: []};
 		lineHeight = tickFont.lineHeight;

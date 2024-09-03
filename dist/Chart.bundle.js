@@ -9760,7 +9760,9 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 	update: function (config) {
 		var me = this;
 		var i, ilen;
-
+		if(!me.ctx){
+			return;
+		}
 		if (!config || typeof config !== 'object') {
 			// backwards compatibility
 			config = {
